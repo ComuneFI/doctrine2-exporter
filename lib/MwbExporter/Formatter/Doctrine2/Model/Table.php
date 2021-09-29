@@ -28,7 +28,6 @@ namespace MwbExporter\Formatter\Doctrine2\Model;
 
 use MwbExporter\Model\Table as BaseTable;
 use MwbExporter\Formatter\Doctrine2\Formatter;
-use Doctrine\Common\Inflector\Inflector;
 
 class Table extends BaseTable
 {
@@ -52,35 +51,15 @@ class Table extends BaseTable
         return $namespace;
     }
 
-    public function getBaseEntityNamespace() {
-        return 'Base\\'.$this->getEntityNamespace();
-    }
-
-    /**
-     * Get the entity cacheMode.
-     *
-     * @return string
-     */
-    public function getEntityCacheMode()
-    {
-        $cacheMode = strtoupper(trim($this->parseComment('cache')));
-        if (in_array($cacheMode, array('READ_ONLY', 'NONSTRICT_READ_WRITE', 'READ_WRITE'))) return $cacheMode;
-    }
-
     /**
      * Get namespace of a class.
      *
      * @param string $class The class name
      * @return string
      */
-    public function getNamespace($class = null, $absolute = true, $base = false)
+    public function getNamespace($class = null, $absolute = true)
     {
-        return sprintf(
-            '%s%s\%s',
-            $absolute ? '\\' : '',
-            $base ? $this->getBaseEntityNamespace() : $this->getEntityNamespace(),
-            null === $class ? $this->getModelName() : $class
-        );
+        return sprintf('%s%s\%s', $absolute ? '\\' : '', $this->getEntityNamespace(), null === $class ? $this->getModelName() : $class);
     }
 
     /**
@@ -133,30 +112,7 @@ class Table extends BaseTable
      */
     public function getRelatedVarName($name, $related = null, $plural = false)
     {
-        /**
-         * if $name does not match the current ModelName (in case a relation column), check if the table comment includes the `relatedNames` tag
-         * and parse that to see if for $name was provided a custom value
-         */
+        $name = $related ? strtr($this->getConfig()->get(Formatter::CFG_RELATED_VAR_NAME_FORMAT), array('%name%' => $name, '%related%' => $related)) : $name;
 
-        $nameFromCommentTag = '';
-        $relatedNames = trim($this->parseComment('relatedNames'));
-
-        if ('' !== $relatedNames) {
-            foreach (explode("\n", $relatedNames) as $relationMap) {
-                list($toChange, $replacement) = explode(':', $relationMap, 2);
-                if ($name === $toChange) {
-                    $nameFromCommentTag = $replacement;
-                    break;
-                }
-            }
-        }
-        if ($nameFromCommentTag) {
-            $name = $nameFromCommentTag;
-        }
-        else {
-            $name = $related ? strtr($this->getConfig()->get(Formatter::CFG_RELATED_VAR_NAME_FORMAT), array('%name%' => $name, '%related%' => $related)) : $name;
-        }
-
-        return $plural ? Inflector::pluralize($name) : $name;
-    }
+return $plural ? $this->getFormatter()->getInflector()->pluralize($name) : $name;    }
 }

@@ -70,16 +70,10 @@ class Table extends BaseTable
     public function asYAML()
     {
         $namespace = $this->getNamespace(null, false);
-
         $values = array(
             'type' => 'entity',
-            'table' => $this->getConfig()->get(Formatter::CFG_PREFIX_TABLENAME).$this->getRawTableName(),
+            'table' => $this->getRawTableName(), 
         );
-        // cache Mode
-        if (!is_null($cacheMode = $this->getEntityCacheMode())) {
-            $values['cache'] = array();
-            $values['cache']['usage'] = $cacheMode;
-        }
         if ($this->getConfig()->get(Formatter::CFG_AUTOMATIC_REPOSITORY)) {
             if ($repositoryNamespace = $this->getConfig()->get(Formatter::CFG_REPOSITORY_NAMESPACE)) {
                 $repositoryNamespace .= '\\';
@@ -182,11 +176,8 @@ class Table extends BaseTable
                 }
                 $values[$type][$relationName] = array_merge(array(
                     'targetEntity' => $targetEntity,
-                    'mappedBy'   => lcfirst($this->getRelatedVarName($mappedBy, $related)),
+                    'inversedBy'   => lcfirst($this->getRelatedVarName($mappedBy, $related)),
                 ), $this->getJoins($local));
-            }
-            if (!is_null($cacheMode = $this->getFormatter()->getCacheOption($local->parseComment('cache')))) {
-              $values[$type][$relationName]['cache']['usage'] = $cacheMode;
             }
         }
 
@@ -227,9 +218,6 @@ class Table extends BaseTable
                     'inversedBy'    => $foreign->isUnidirectional() ? null : lcfirst($this->getRelatedVarName($inversedBy, $related)),
                 ), $this->getJoins($foreign, false));
             }
-            if (!is_null($cacheMode = $this->getFormatter()->getCacheOption($foreign->parseComment('cache')))) {
-              $values[$type][$relationName]['cache']['usage'] = $cacheMode;
-            }
         }
 
         return $this;
@@ -248,12 +236,7 @@ class Table extends BaseTable
                 'cascade'      => $this->getFormatter()->getCascadeOption($fk1->parseComment('cascade')),
                 'fetch'        => $this->getFormatter()->getFetchOption($fk1->parseComment('fetch')),
             );
-
-            $relationName = Inflector::camelize(
-                Inflector::pluralize(
-                    $relation['refTable']->getRawTableName()
-                )
-            );
+            $relationName = $this->getFormatter()->getInflector()->camelize($this->pluralize($relation['refTable']->getRawTableName()));
 
             // if this is the owning side, also output the JoinTable Annotation
             // otherwise use "mappedBy" feature
@@ -273,9 +256,6 @@ class Table extends BaseTable
                         'inverseJoinColumns' => $this->convertJoinColumns($this->getJoins($fk2, false)),
                     ),
                 ));
-                if (!is_null($cacheMode = $this->getFormatter()->getCacheOption($fk1->parseComment('cache')))) {
-                  $values[$type][$relationName]['cache']['usage'] = $cacheMode;
-                }
             } else {
                 if ($fk2->isUnidirectional()) {
                     continue;
@@ -288,9 +268,6 @@ class Table extends BaseTable
                     $values[$type] = array();
                 }
                 $values[$type][$relationName] = $mappings;
-                if (!is_null($cacheMode = $this->getFormatter()->getCacheOption($fk2->parseComment('cache')))) {
-                  $values[$type][$relationName]['cache']['usage'] = $cacheMode;
-                }
             }
         }
 

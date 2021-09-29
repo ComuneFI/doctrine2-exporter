@@ -117,12 +117,6 @@ Common Setup Options for Doctrine 2.0:
 
     Default is `false`.
 
-  * `extendableEntityHasDiscriminator`
-
-    If enabled, `DiscriminatorColumn` and `DiscriminatorMap` annotations will be used.
-
-    Default is `true`.
-
   * `quoteIdentifierStrategy`
 
     This option determine wheter identifier quoting is applied or not, depend on the strategy
@@ -146,12 +140,7 @@ Common Setup Options for Doctrine 2.0:
     whose type is a class. E.g. `\DateTime` would be type-hinted but not `object` or `string`.
 
     Default is `false`.
-    
-  * `useBehavioralExtensions`
 
-    use Doctrine2 behavioral extensions like create table with name '_img' then can be auto create plugin support.
-
-    Default is `false`.
 #### Model Comment Behavior
 
   * `{d:bundleNamespace}AcmeBundle{/d:bundleNamespace}` (applied to Table)
@@ -211,47 +200,11 @@ Common Setup Options for Doctrine 2.0:
           column1,desc
         {/d:order}
 
-  * `{d:cache}READ_ONLY, NONSTRICT_READ_WRITE, READ_WRITE{/d:cache}` (applied to Table and/or ForeignKey)
-
-    You can specify Doctrine second level caching strategy as a comment on a table or foreign key. They will be generated into the Annotation or YAML.
-    ([Reference](http://doctrine-orm.readthedocs.io/en/latest/reference/second-level-cache.html))
-    
-    
-  * `{d:relatedNames}RelationTable:NewName{/d:relatedNames}` (applied to Table)
-    
-    Overrides `relatedVarNameFormat`.
-
-    Rename generated related column names when the table names and the `relatedVarNameFormat` pattern are not good enough. The format should be CamelCase singular and should map with the class name that is generated for the related entity.
-    Can be written in the following format:
-
-        RelationTableName:CustomRelationName
-
-    Multiple relations are supported, separated by line break. Example usage:
-        - on a "store_products" table with "store_product_categories" and "store_product_images" related tables:
-        
-        {d:relatedNames}
-        StoreProductCategory:Category
-        StoreProductImage:Image
-        {/d:relatedNames}
-        
-    It can be used in both parent / child tables. For example, on a "store_product_images" table:
-    
-        {d:relatedNames}
-        StoreProduct:Product
-        {/d:relatedNames}
-        
-    The generated StoreProduct class will have "category" and "image" properties instead of "storeProductCategory" and "storeProductImage", while the "StoreProductImage" class will have a "product" property instead of "storeProduct".
-
 ### Doctrine 2.0 Annotation with ZF2 Input Filter Classes
 
 Doctrine 2.0 Annotation with ZF2 Input Filter Classes formatter directly extend Doctrine 2.0
 Annotation. The setup options and model comment behavior exactly the same as Doctrine 2.0
 Annotation with the following addons.
-
-Add Some `Zend\Validator\StringLength`,`Zend\Filter\StringTrim`,`Zend\Filter\StripTags` as string type column
-Add Some Filters like column name with 'phone' or '_tel' auto create filter with `Zend\I18n\Validator\PhoneNumber`
-and column name with 'email' auto create filter with `Zend\Validator\EmailAddress`
-
 
 #### Setup Options
 

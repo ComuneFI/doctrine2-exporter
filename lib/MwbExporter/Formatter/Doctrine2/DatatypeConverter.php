@@ -44,10 +44,7 @@ class DatatypeConverter extends BaseDatatypeConverter
             static::DATATYPE_DOUBLE             => 'float',
             static::DATATYPE_DECIMAL            => 'decimal',
             static::DATATYPE_CHAR               => 'string',
-            static::DATATYPE_NCHAR              => 'string',
             static::DATATYPE_VARCHAR            => 'string',
-            static::DATATYPE_NVARCHAR           => 'string',
-            static::DATATYPE_JSON               => 'json',
             static::DATATYPE_BINARY             => 'blob',
             static::DATATYPE_VARBINARY          => 'blob',
             static::DATATYPE_TINYTEXT           => 'text',
@@ -95,7 +92,6 @@ class DatatypeConverter extends BaseDatatypeConverter
             static::USERDATATYPE_NUMERIC        => 'decimal',
             static::USERDATATYPE_DEC            => 'decimal',
             static::USERDATATYPE_CHARACTER      => 'string',
-            static::USERDATATYPE_JSON           => 'array',
         ));
     }
 
@@ -118,11 +114,14 @@ class DatatypeConverter extends BaseDatatypeConverter
                 break;
 
             case 'smallint':
+            case 'bigint':
                 $type = 'integer';
                 break;
 
             case 'decimal':
-            case 'bigint':
+                $type = 'float';
+                break;
+
             case 'text':
             case 'blob':
                 $type = 'string';
@@ -137,10 +136,12 @@ class DatatypeConverter extends BaseDatatypeConverter
 
     public function getMappedType(Column $column)
     {
-        if ($column->isBoolean()) {
-            return 'boolean';
+        $type = parent::getMappedType($column);
+        // map tinyint(1) as boolean
+        if ('tinyint' == substr($column->getColumnType(), -7) && 1 == $column->getParameters()->get('precision')) {
+            $type = 'boolean';
         }
 
-        return parent::getMappedType($column);
+        return $type;
     }
 }

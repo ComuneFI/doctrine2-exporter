@@ -27,7 +27,6 @@
 
 namespace MwbExporter\Formatter\Doctrine2\Yaml\Model;
 
-use MwbExporter\Formatter\DatatypeConverterInterface;
 use MwbExporter\Formatter\Doctrine2\Model\Column as BaseColumn;
 use MwbExporter\Formatter\Doctrine2\Yaml\Formatter;
 
@@ -53,27 +52,7 @@ class Column extends BaseColumn
         if ($this->isAutoIncrement()) {
             $values['generator'] = array('strategy' => strtoupper($this->getConfig()->get(Formatter::CFG_GENERATED_VALUE_STRATEGY)));
         }
-        if ($this->getDefaultValue() !== null) {
-            $values['options']['default'] = $this->isStringType()
-                ? "'" . $this->getDefaultValue() . "'"
-                : $this->getDefaultValue() ;
-        }
 
         return $values;
-    }
-
-    /**
-     * Get if the type is a string or not.
-     * @return bool Return true if the datatype is a string, else return false.
-     */
-    private function isStringType() {
-        switch($this->getColumnType())
-        {
-            case DatatypeConverterInterface::DATATYPE_CHAR:
-            case DatatypeConverterInterface::DATATYPE_VARCHAR:
-                return true;
-            default:
-                return false;
-        }
     }
 }
